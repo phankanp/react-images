@@ -1,13 +1,10 @@
 import React, { Component } from "react";
-import { Redirect, Link } from "react-router-dom";
 import { withRouter } from "react-router";
 import { Navbar, Nav, Form, FormControl, Button } from "react-bootstrap";
+import { LinkContainer } from "react-router-bootstrap";
 
 class Header extends Component {
-  constructor(props) {
-    super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
+  state = {};
 
   handleSubmit = e => {
     e.preventDefault();
@@ -17,12 +14,18 @@ class Header extends Component {
     this.props.history.push(path);
   };
 
+  handleClick(e, query) {
+    e.preventDefault();
+    this.props.onSearch(query);
+    this.props.history.push("/");
+  }
+
   render() {
     return (
       <Navbar bg="dark" variant="dark">
-        <Navbar.Brand as={Link} to="/">
-          Flikr-Gallery
-        </Navbar.Brand>
+        <LinkContainer to="/" onClick={e => this.handleClick(e, "Baseball")}>
+          <Navbar.Brand>Flikr-Gallery</Navbar.Brand>
+        </LinkContainer>
         <Nav className="mr-auto" />
         <Form inline onSubmit={this.handleSubmit}>
           <FormControl

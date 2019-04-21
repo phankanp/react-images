@@ -2,7 +2,7 @@ import React from "react";
 import { Image, Col } from "react-bootstrap";
 
 const imageStyle = {
-  height: 400,
+  height: 200,
   width: 400
 };
 

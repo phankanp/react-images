@@ -1,19 +1,19 @@
 import React, { Component } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import axios from "axios";
-
+import { Container, Spinner } from "react-bootstrap";
 import Header from "./components/Header";
-import ImageList from "./components/ImageList";
+import PhotoList from "./components/PhotoList";
 import apiKey from "./config";
 
 import "./App.css";
 
 class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      images: [],
-      title: "",
+      photos: [],
+      currentTitle: "",
       loading: true
     };
   }
@@ -22,16 +22,16 @@ class App extends Component {
     this.performSearch();
   }
 
-  performSearch = (query = "cats") => {
+  performSearch = (query = "Baseball") => {
     axios
       .get(
         `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&text=${query}&per_page=25&page=1&format=json&nojsoncallback=1`
       )
       .then(response => {
         this.setState({
-          images: response.data.photos.photo,
+          photos: response.data.photos.photo,
           loading: false,
-          title: query
+          currentTitle: query
         });
       })
       .catch(error => {
@@ -39,18 +39,81 @@ class App extends Component {
       });
   };
 
+  getPhotos(nextTitle) {
+    this.performSearch(nextTitle);
+  }
+
   render() {
+    if (this.state.loading) {
+      return (
+        <Container className="text-center" style={containerStyle}>
+          <Spinner animation="border" />
+        </Container>
+      );
+    }
     return (
       <BrowserRouter>
         <Header onSearch={this.performSearch} />
         <Switch>
           <Route
+            exact
+            path="/"
+            render={() => (
+              <PhotoList
+                data={this.state.photos}
+                title={this.state.currentTitle}
+                currentTitle={this.state.currentTitle}
+                getPhotos={nextTitle => this.getPhotos(nextTitle)}
+                fetchPhotos={term => this.performSearch(term)}
+              />
+            )}
+          />
+          <Route
+            path="/Football"
+            render={() => (
+              <PhotoList
+                title="Football"
+                currentTitle={this.state.currentTitle}
+                getPhotos={nextTitle => this.getPhotos(nextTitle)}
+                fetchPhotos={term => this.performSearch(term)}
+                data={this.state.photos}
+              />
+            )}
+          />
+          <Route
+            path="/Basketball"
+            render={() => (
+              <PhotoList
+                title="Basketball"
+                currentTitle={this.state.currentTitle}
+                getPhotos={nextTitle => this.getPhotos(nextTitle)}
+                fetchPhotos={term => this.performSearch(term)}
+                data={this.state.photos}
+              />
+            )}
+          />
+          <Route
+            path="/Soccer"
+            render={() => (
+              <PhotoList
+                title="Soccer"
+                currentTitle={this.state.currentTitle}
+                getPhotos={nextTitle => this.getPhotos(nextTitle)}
+                fetchPhotos={term => this.performSearch(term)}
+                data={this.state.photos}
+              />
+            )}
+          />
+          <Route
             path="/search"
             render={() => (
-              <ImageList
-                {...this.state}
-                data={this.state.images}
-                title={this.state.title}
+              <PhotoList
+                loading={this.state.loading}
+                data={this.state.photos}
+                title="Search"
+                currentTitle={this.state.currentTitle}
+                getPhotos={nextTitle => this.getPhotos(nextTitle)}
+                fetchPhotos={term => this.performSearch(term)}
               />
             )}
           />
@@ -59,5 +122,9 @@ class App extends Component {
     );
   }
 }
+
+const containerStyle = {
+  paddingTop: 350
+};
 
 export default App;
